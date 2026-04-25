@@ -1,56 +1,19 @@
 package com.alex.financetracker.app;
 
-import com.alex.financetracker.config.DatabaseConfig;
-
-import java.sql.Connection;
-import java.util.List;
-
 import com.alex.financetracker.config.DatabaseInitializer;
-import com.alex.financetracker.entity.Expense;
-import com.alex.financetracker.entity.ExpenseType;
-import com.alex.financetracker.entity.Income;
-import com.alex.financetracker.entity.MonthlyReport;
-import com.alex.financetracker.repository.ExpenseRepository;
-import com.alex.financetracker.repository.IncomeRepository;
-import com.alex.financetracker.service.FinanceService;
+import com.alex.financetracker.ui.MainFrame;
 
+import javax.swing.SwingUtilities;
 
 public class App {
+
     public static void main(String[] args) {
+
         DatabaseInitializer.initialize();
 
-        IncomeRepository repo = new IncomeRepository();
-
-        Income income = new Income(2025, 6, 300.0, "Salary");
-
-        repo.save(income);
-
-        List<Income> incomes = repo.findAll();
-
-        for (Income inc : incomes) {
-            System.out.println(inc);
-        }
-        ExpenseRepository expenseRepo = new ExpenseRepository();
-
-        Expense expense = new Expense(
-                2025,
-                6,
-                50.0,
-                ExpenseType.CARD,
-                "Food",
-                "Groceries"
-        );
-
-        expenseRepo.save(expense);
-
-        List<Expense> expenses = expenseRepo.findAll();
-
-        for (Expense exp : expenses) {
-            System.out.println(exp);
-        }
-        FinanceService financeService = new FinanceService();
-        MonthlyReport report = financeService.createMonthlyReport(2025, 6);
-
-        System.out.println(report);
+        SwingUtilities.invokeLater(() -> {
+            MainFrame mainFrame = new MainFrame();
+            mainFrame.setVisible(true);
+        });
     }
 }
