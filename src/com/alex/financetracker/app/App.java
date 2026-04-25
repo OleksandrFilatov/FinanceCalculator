@@ -1,6 +1,7 @@
 package com.alex.financetracker.app;
 
 import com.alex.financetracker.config.DatabaseConfig;
+
 import java.sql.Connection;
 import java.util.List;
 
@@ -8,12 +9,13 @@ import com.alex.financetracker.config.DatabaseInitializer;
 import com.alex.financetracker.entity.Expense;
 import com.alex.financetracker.entity.ExpenseType;
 import com.alex.financetracker.entity.Income;
+import com.alex.financetracker.repository.ExpenseRepository;
 import com.alex.financetracker.repository.IncomeRepository;
 
 
 public class App {
     public static void main(String[] args) {
-            DatabaseInitializer.initialize();
+        DatabaseInitializer.initialize();
 
         IncomeRepository repo = new IncomeRepository();
 
@@ -26,5 +28,23 @@ public class App {
         for (Income inc : incomes) {
             System.out.println(inc);
         }
+        ExpenseRepository expenseRepo = new ExpenseRepository();
+
+        Expense expense = new Expense(
+                2025,
+                6,
+                50.0,
+                ExpenseType.CARD,
+                "Food",
+                "Groceries"
+        );
+
+        expenseRepo.save(expense);
+
+        List<Expense> expenses = expenseRepo.findAll();
+
+        for (Expense exp : expenses) {
+            System.out.println(exp);
         }
     }
+}
