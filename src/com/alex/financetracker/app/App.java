@@ -2,6 +2,7 @@ package com.alex.financetracker.app;
 
 import com.alex.financetracker.config.DatabaseConfig;
 import java.sql.Connection;
+import java.util.List;
 
 import com.alex.financetracker.config.DatabaseInitializer;
 import com.alex.financetracker.entity.Expense;
@@ -19,5 +20,11 @@ public class App {
         Income income = new Income(2025, 6, 300.0, "Salary");
 
         repo.save(income);
+
+        List<Income> incomes = repo.findAll();
+
+        for (Income inc : incomes) {
+            System.out.println(inc);
+        }
         }
     }
