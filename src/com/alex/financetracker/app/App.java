@@ -9,8 +9,10 @@ import com.alex.financetracker.config.DatabaseInitializer;
 import com.alex.financetracker.entity.Expense;
 import com.alex.financetracker.entity.ExpenseType;
 import com.alex.financetracker.entity.Income;
+import com.alex.financetracker.entity.MonthlyReport;
 import com.alex.financetracker.repository.ExpenseRepository;
 import com.alex.financetracker.repository.IncomeRepository;
+import com.alex.financetracker.service.FinanceService;
 
 
 public class App {
@@ -46,5 +48,9 @@ public class App {
         for (Expense exp : expenses) {
             System.out.println(exp);
         }
+        FinanceService financeService = new FinanceService();
+        MonthlyReport report = financeService.createMonthlyReport(2025, 6);
+
+        System.out.println(report);
     }
 }
