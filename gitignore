@@ -1,0 +1,21 @@
+# Maven
+target/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+
+# Database files
+*.db
+*.db-journal
+*.sqlite
+
+# Exported reports
+*.csv
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
