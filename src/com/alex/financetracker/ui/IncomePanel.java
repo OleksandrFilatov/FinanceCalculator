@@ -1,0 +1,170 @@
+package com.alex.financetracker.ui;
+
+import com.alex.financetracker.entity.Income;
+import com.alex.financetracker.repository.IncomeRepository;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.util.List;
+
+public class IncomePanel extends JPanel {
+
+    private JComboBox<Integer> yearBox;
+    private JComboBox<String> monthBox;
+    private JTextField amountField;
+    private JTextField descriptionField;
+
+    private JTable incomeTable;
+    private DefaultTableModel tableModel;
+
+    private IncomeRepository incomeRepository;
+
+    public IncomePanel() {
+        incomeRepository = new IncomeRepository();
+
+        setLayout(new BorderLayout(15, 15));
+        setBorder(new EmptyBorder(20, 20, 20, 20));
+        setBackground(new Color(245, 247, 250));
+
+        add(createFormPanel(), BorderLayout.NORTH);
+        add(createTablePanel(), BorderLayout.CENTER);
+
+        loadIncomes();
+    }
+
+    private JPanel createFormPanel() {
+        JPanel panel = new JPanel(new BorderLayout(10, 15));
+        panel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(220, 220, 220), 1),
+                new EmptyBorder(20, 20, 20, 20)
+        ));
+        panel.setBackground(Color.WHITE);
+
+        JLabel title = new JLabel("Add New Income");
+        title.setFont(new Font("Arial", Font.BOLD, 22));
+
+        JPanel fieldsPanel = new JPanel(new GridLayout(2, 4, 15, 10));
+        fieldsPanel.setBackground(Color.WHITE);
+
+        yearBox = new JComboBox<>(new Integer[]{
+                2024, 2025, 2026, 2027
+        });
+
+        monthBox = new JComboBox<>(new String[]{
+                "January", "February", "March", "April",
+                "May", "June", "July", "August",
+                "September", "October", "November", "December"
+        });
+
+        amountField = new JTextField();
+        descriptionField = new JTextField();
+
+        fieldsPanel.add(new JLabel("Year"));
+        fieldsPanel.add(new JLabel("Month"));
+        fieldsPanel.add(new JLabel("Amount"));
+        fieldsPanel.add(new JLabel("Description"));
+
+        fieldsPanel.add(yearBox);
+        fieldsPanel.add(monthBox);
+        fieldsPanel.add(amountField);
+        fieldsPanel.add(descriptionField);
+
+        JButton addButton = new JButton("Add income");
+        addButton.setFocusPainted(false);
+        addButton.setFont(new Font("Arial", Font.BOLD, 14));
+        addButton.setPreferredSize(new Dimension(180, 45));
+        addButton.addActionListener(e -> addIncome());
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        buttonPanel.setBackground(Color.WHITE);
+        buttonPanel.add(addButton);
+
+        panel.add(title, BorderLayout.NORTH);
+        panel.add(fieldsPanel, BorderLayout.CENTER);
+        panel.add(buttonPanel, BorderLayout.SOUTH);
+
+        return panel;
+    }
+
+    private JPanel createTablePanel() {
+        JPanel panel = new JPanel(new BorderLayout(10, 10));
+        panel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(220, 220, 220), 1),
+                new EmptyBorder(20, 20, 20, 20)
+        ));
+        panel.setBackground(Color.WHITE);
+
+        JLabel title = new JLabel("Income List");
+        title.setFont(new Font("Arial", Font.BOLD, 22));
+
+        tableModel = new DefaultTableModel();
+        tableModel.addColumn("ID");
+        tableModel.addColumn("Year");
+        tableModel.addColumn("Month");
+        tableModel.addColumn("Amount");
+        tableModel.addColumn("Description");
+
+        incomeTable = new JTable(tableModel);
+        incomeTable.setRowHeight(32);
+        incomeTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        incomeTable.setGridColor(Color.LIGHT_GRAY);
+        incomeTable.setShowGrid(true);
+        incomeTable.setFillsViewportHeight(true);
+        incomeTable.setFont(new Font("Arial", Font.PLAIN, 14));
+        incomeTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+
+        incomeTable.getTableHeader().setFont(new Font("Arial", Font.BOLD, 14));
+        incomeTable.getTableHeader().setReorderingAllowed(false);
+        incomeTable.getTableHeader().setResizingAllowed(false);
+
+        JScrollPane scrollPane = new JScrollPane(incomeTable);
+        scrollPane.setPreferredSize(new Dimension(500, 180));
+
+        panel.add(title, BorderLayout.NORTH);
+        panel.add(scrollPane, BorderLayout.CENTER);
+
+        return panel;
+    }
+
+    private void addIncome() {
+        try {
+            int year = (Integer) yearBox.getSelectedItem();
+            int month = monthBox.getSelectedIndex() + 1;
+            double amount = Double.parseDouble(amountField.getText());
+            String description = descriptionField.getText();
+
+            Income income = new Income(year, month, amount, description);
+            incomeRepository.save(income);
+
+            JOptionPane.showMessageDialog(this, "Income added successfully!");
+
+            yearBox.setSelectedIndex(0);
+            monthBox.setSelectedIndex(0);
+            amountField.setText("");
+            descriptionField.setText("");
+
+            loadIncomes();
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Invalid input");
+        }
+    }
+
+    private void loadIncomes() {
+        tableModel.setRowCount(0);
+
+        List<Income> incomes = incomeRepository.findAll();
+
+        for (Income income : incomes) {
+            tableModel.addRow(new Object[]{
+                    income.getId(),
+                    income.getYear(),
+                    income.getMonth(),
+                    income.getAmount(),
+                    income.getDescription()
+            });
+        }
+    }
+}

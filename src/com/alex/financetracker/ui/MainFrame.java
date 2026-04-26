@@ -9,13 +9,13 @@ public class MainFrame extends JFrame {
     public MainFrame() {
 
         setTitle("Finance Tracker");
-        setSize(900, 600);
+        setSize(900, 900);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
         JTabbedPane tabbedPane = new JTabbedPane();
 
-        JPanel incomePanel = new JPanel();
+        IncomePanel incomePanel = new IncomePanel();
         JPanel expensePanel = new JPanel();
         JPanel reportPanel = new JPanel();
 
