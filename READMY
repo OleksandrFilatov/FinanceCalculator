@@ -1,0 +1,26 @@
+# Finance Tracker Desktop App
+
+A desktop application for personal finance tracking built with Java, Swing, JDBC, and SQLite.
+
+## Features
+
+- Add, edit, delete and view incomes
+- Add, edit, delete and view expenses
+- Store data in SQLite database
+- Separate income and expense types
+- Generate monthly financial reports
+- Calculate:
+  - total income
+  - card expenses
+  - cash expenses
+  - total expenses
+  - monthly balance
+  - cumulative balance
+
+## Technologies
+
+- Java
+- Swing
+- JDBC
+- SQLite
+- Maven

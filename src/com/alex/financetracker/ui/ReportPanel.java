@@ -2,6 +2,7 @@ package com.alex.financetracker.ui;
 
 import com.alex.financetracker.entity.MonthlyReport;
 import com.alex.financetracker.service.FinanceService;
+import com.alex.financetracker.util.CSVExporter;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -45,8 +46,18 @@ public class ReportPanel extends JPanel {
         refreshButton.setFont(new Font("Arial", Font.BOLD, 14));
         refreshButton.addActionListener(e -> loadReports());
 
+        JButton exportButton = new JButton("Export CSV");
+        exportButton.setFocusPainted(false);
+        exportButton.setFont(new Font("Arial", Font.BOLD, 14));
+        exportButton.addActionListener(e -> exportCsv());
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        buttonPanel.setBackground(Color.WHITE);
+        buttonPanel.add(refreshButton);
+        buttonPanel.add(exportButton);
+
         panel.add(title, BorderLayout.WEST);
-        panel.add(refreshButton, BorderLayout.EAST);
+        panel.add(buttonPanel, BorderLayout.EAST);
 
         return panel;
     }
@@ -106,6 +117,19 @@ public class ReportPanel extends JPanel {
                     String.format("%.2f", report.getBalance()),
                     String.format("%.2f", report.getCumulativeBalance())
             });
+        }
+    }
+
+    private void exportCsv() {
+        try {
+            List<MonthlyReport> reports = financeService.createAllMonthlyReports();
+
+            CSVExporter exporter = new CSVExporter();
+            exporter.exportMonthlyReports(reports, "finance_report.csv");
+
+            JOptionPane.showMessageDialog(this, "CSV exported successfully!");
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "CSV export failed");
         }
     }
 }
