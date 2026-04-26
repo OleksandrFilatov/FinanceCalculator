@@ -34,12 +34,27 @@ public class IncomePanel extends JPanel {
         loadIncomes();
     }
 
+    private void deleteIncome() {
+
+        int selectedRow = incomeTable.getSelectedRow();
+
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Select a row first");
+            return;
+        }
+
+        int id = (int) tableModel.getValueAt(selectedRow, 0);
+
+        incomeRepository.deleteById(id);
+
+        JOptionPane.showMessageDialog(this, "Income deleted successfully!");
+
+        loadIncomes();
+    }
+
     private JPanel createFormPanel() {
         JPanel panel = new JPanel(new BorderLayout(10, 15));
-        panel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(220, 220, 220), 1),
-                new EmptyBorder(20, 20, 20, 20)
-        ));
+        panel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(220, 220, 220), 1), new EmptyBorder(20, 20, 20, 20)));
         panel.setBackground(Color.WHITE);
 
         JLabel title = new JLabel("Add New Income");
@@ -48,15 +63,9 @@ public class IncomePanel extends JPanel {
         JPanel fieldsPanel = new JPanel(new GridLayout(2, 4, 15, 10));
         fieldsPanel.setBackground(Color.WHITE);
 
-        yearBox = new JComboBox<>(new Integer[]{
-                2024, 2025, 2026, 2027
-        });
+        yearBox = new JComboBox<>(new Integer[]{2024, 2025, 2026, 2027});
 
-        monthBox = new JComboBox<>(new String[]{
-                "January", "February", "March", "April",
-                "May", "June", "July", "August",
-                "September", "October", "November", "December"
-        });
+        monthBox = new JComboBox<>(new String[]{"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"});
 
         amountField = new JTextField();
         descriptionField = new JTextField();
@@ -90,10 +99,7 @@ public class IncomePanel extends JPanel {
 
     private JPanel createTablePanel() {
         JPanel panel = new JPanel(new BorderLayout(10, 10));
-        panel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(220, 220, 220), 1),
-                new EmptyBorder(20, 20, 20, 20)
-        ));
+        panel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(220, 220, 220), 1), new EmptyBorder(20, 20, 20, 20)));
         panel.setBackground(Color.WHITE);
 
         JLabel title = new JLabel("Income List");
@@ -120,11 +126,19 @@ public class IncomePanel extends JPanel {
         incomeTable.getTableHeader().setResizingAllowed(false);
 
         JScrollPane scrollPane = new JScrollPane(incomeTable);
+        JButton deleteButton = new JButton("Delete selected");
+        deleteButton.setFocusPainted(false);
+        deleteButton.setFont(new Font("Arial", Font.BOLD, 14));
+        deleteButton.addActionListener(e -> deleteIncome());
+
+        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        bottomPanel.setBackground(Color.WHITE);
+        bottomPanel.add(deleteButton);
         scrollPane.setPreferredSize(new Dimension(500, 180));
 
         panel.add(title, BorderLayout.NORTH);
         panel.add(scrollPane, BorderLayout.CENTER);
-
+        panel.add(bottomPanel, BorderLayout.SOUTH);
         return panel;
     }
 
@@ -158,13 +172,7 @@ public class IncomePanel extends JPanel {
         List<Income> incomes = incomeRepository.findAll();
 
         for (Income income : incomes) {
-            tableModel.addRow(new Object[]{
-                    income.getId(),
-                    income.getYear(),
-                    income.getMonth(),
-                    income.getAmount(),
-                    income.getDescription()
-            });
+            tableModel.addRow(new Object[]{income.getId(), income.getYear(), income.getMonth(), income.getAmount(), income.getDescription()});
         }
     }
 }

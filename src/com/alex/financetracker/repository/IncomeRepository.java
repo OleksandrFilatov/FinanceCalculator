@@ -60,4 +60,21 @@ public class IncomeRepository {
 
         return incomes;
     }
+    public void deleteById(int id) {
+
+        String sql = "DELETE FROM incomes WHERE id = ?";
+
+        try (Connection connection = DatabaseConfig.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setInt(1, id);
+
+            statement.executeUpdate();
+
+            System.out.println("Income deleted!");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
