@@ -31,6 +31,7 @@ public class IncomeRepository {
             e.printStackTrace();
         }
     }
+
     public List<Income> findAll() {
 
         List<Income> incomes = new ArrayList<>();
@@ -60,6 +61,7 @@ public class IncomeRepository {
 
         return incomes;
     }
+
     public void deleteById(int id) {
 
         String sql = "DELETE FROM incomes WHERE id = ?";
@@ -77,6 +79,7 @@ public class IncomeRepository {
             e.printStackTrace();
         }
     }
+
     public void update(Income income) {
 
         String sql = "UPDATE incomes SET year = ?, month = ?, amount = ?, description = ? WHERE id = ?";
@@ -97,5 +100,37 @@ public class IncomeRepository {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public List<Income> searchByDescription(String keyword) {
+
+        List<Income> incomes = new ArrayList<>();
+
+        String sql = "SELECT * FROM incomes WHERE description LIKE ?";
+
+        try (Connection connection = DatabaseConfig.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setString(1, "%" + keyword + "%");
+
+            ResultSet resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                int id = resultSet.getInt("id");
+                int year = resultSet.getInt("year");
+                int month = resultSet.getInt("month");
+                double amount = resultSet.getDouble("amount");
+                String description = resultSet.getString("description");
+
+                Income income = new Income(id, year, month, amount, description);
+
+                incomes.add(income);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return incomes;
     }
 }

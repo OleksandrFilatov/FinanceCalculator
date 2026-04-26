@@ -15,6 +15,7 @@ public class IncomePanel extends JPanel {
     private JComboBox<String> monthBox;
     private JTextField amountField;
     private JTextField descriptionField;
+    private JTextField searchField;
 
     private JTable incomeTable;
     private DefaultTableModel tableModel;
@@ -99,6 +100,33 @@ public class IncomePanel extends JPanel {
         JLabel title = new JLabel("Income List");
         title.setFont(new Font("Arial", Font.BOLD, 22));
 
+        searchField = new JTextField(20);
+
+        JButton searchButton = new JButton("Search");
+        searchButton.setFocusPainted(false);
+        searchButton.setFont(new Font("Arial", Font.BOLD, 14));
+        searchButton.addActionListener(e -> searchIncomes());
+
+        JButton resetButton = new JButton("Reset");
+        resetButton.setFocusPainted(false);
+        resetButton.setFont(new Font("Arial", Font.BOLD, 14));
+        resetButton.addActionListener(e -> {
+            searchField.setText("");
+            loadIncomes();
+        });
+
+        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        searchPanel.setBackground(Color.WHITE);
+        searchPanel.add(new JLabel("Search description:"));
+        searchPanel.add(searchField);
+        searchPanel.add(searchButton);
+        searchPanel.add(resetButton);
+
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.setBackground(Color.WHITE);
+        topPanel.add(title, BorderLayout.WEST);
+        topPanel.add(searchPanel, BorderLayout.EAST);
+
         tableModel = new DefaultTableModel();
         tableModel.addColumn("ID");
         tableModel.addColumn("Year");
@@ -137,31 +165,11 @@ public class IncomePanel extends JPanel {
         bottomPanel.add(updateButton);
         bottomPanel.add(deleteButton);
 
-        panel.add(title, BorderLayout.NORTH);
+        panel.add(topPanel, BorderLayout.NORTH);
         panel.add(scrollPane, BorderLayout.CENTER);
         panel.add(bottomPanel, BorderLayout.SOUTH);
 
         return panel;
-    }
-
-    private void addTableSelectionListener() {
-        incomeTable.getSelectionModel().addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting()) {
-                int selectedRow = incomeTable.getSelectedRow();
-
-                if (selectedRow != -1) {
-                    int year = (int) tableModel.getValueAt(selectedRow, 1);
-                    int month = (int) tableModel.getValueAt(selectedRow, 2);
-                    double amount = (double) tableModel.getValueAt(selectedRow, 3);
-                    String description = (String) tableModel.getValueAt(selectedRow, 4);
-
-                    yearBox.setSelectedItem(year);
-                    monthBox.setSelectedIndex(month - 1);
-                    amountField.setText(String.valueOf(amount));
-                    descriptionField.setText(description);
-                }
-            }
-        });
     }
 
     private void addIncome() {
@@ -172,22 +180,11 @@ public class IncomePanel extends JPanel {
             String amountText = amountField.getText().trim();
             String description = descriptionField.getText().trim();
 
-            if (amountText.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Amount is required");
+            if (!validateIncomeInput(amountText, description)) {
                 return;
             }
 
             double amount = Double.parseDouble(amountText);
-
-            if (amount <= 0) {
-                JOptionPane.showMessageDialog(this, "Amount must be greater than 0");
-                return;
-            }
-
-            if (description.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Description is required");
-                return;
-            }
 
             Income income = new Income(year, month, amount, description);
             incomeRepository.save(income);
@@ -220,22 +217,11 @@ public class IncomePanel extends JPanel {
             String amountText = amountField.getText().trim();
             String description = descriptionField.getText().trim();
 
-            if (amountText.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Amount is required");
+            if (!validateIncomeInput(amountText, description)) {
                 return;
             }
 
             double amount = Double.parseDouble(amountText);
-
-            if (amount <= 0) {
-                JOptionPane.showMessageDialog(this, "Amount must be greater than 0");
-                return;
-            }
-
-            if (description.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Description is required");
-                return;
-            }
 
             Income income = new Income(id, year, month, amount, description);
             incomeRepository.update(income);
@@ -252,6 +238,27 @@ public class IncomePanel extends JPanel {
         }
     }
 
+    private boolean validateIncomeInput(String amountText, String description) {
+        if (amountText.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Amount is required");
+            return false;
+        }
+
+        double amount = Double.parseDouble(amountText);
+
+        if (amount <= 0) {
+            JOptionPane.showMessageDialog(this, "Amount must be greater than 0");
+            return false;
+        }
+
+        if (description.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Description is required");
+            return false;
+        }
+
+        return true;
+    }
+
     private void deleteIncome() {
         int selectedRow = incomeTable.getSelectedRow();
 
@@ -266,6 +273,7 @@ public class IncomePanel extends JPanel {
 
         JOptionPane.showMessageDialog(this, "Income deleted successfully!");
 
+        clearFields();
         loadIncomes();
     }
 
@@ -283,6 +291,49 @@ public class IncomePanel extends JPanel {
                     income.getDescription()
             });
         }
+    }
+
+    private void searchIncomes() {
+        String keyword = searchField.getText().trim();
+
+        if (keyword.isEmpty()) {
+            loadIncomes();
+            return;
+        }
+
+        tableModel.setRowCount(0);
+
+        List<Income> incomes = incomeRepository.searchByDescription(keyword);
+
+        for (Income income : incomes) {
+            tableModel.addRow(new Object[]{
+                    income.getId(),
+                    income.getYear(),
+                    income.getMonth(),
+                    income.getAmount(),
+                    income.getDescription()
+            });
+        }
+    }
+
+    private void addTableSelectionListener() {
+        incomeTable.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                int selectedRow = incomeTable.getSelectedRow();
+
+                if (selectedRow != -1) {
+                    int year = (int) tableModel.getValueAt(selectedRow, 1);
+                    int month = (int) tableModel.getValueAt(selectedRow, 2);
+                    double amount = (double) tableModel.getValueAt(selectedRow, 3);
+                    String description = (String) tableModel.getValueAt(selectedRow, 4);
+
+                    yearBox.setSelectedItem(year);
+                    monthBox.setSelectedIndex(month - 1);
+                    amountField.setText(String.valueOf(amount));
+                    descriptionField.setText(description);
+                }
+            }
+        });
     }
 
     private void clearFields() {
