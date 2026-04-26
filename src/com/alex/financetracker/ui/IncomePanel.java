@@ -146,8 +146,26 @@ public class IncomePanel extends JPanel {
         try {
             int year = (Integer) yearBox.getSelectedItem();
             int month = monthBox.getSelectedIndex() + 1;
-            double amount = Double.parseDouble(amountField.getText());
-            String description = descriptionField.getText();
+
+            String amountText = amountField.getText().trim();
+            String description = descriptionField.getText().trim();
+
+            if (amountText.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Amount is required");
+                return;
+            }
+
+            double amount = Double.parseDouble(amountText);
+
+            if (amount <= 0) {
+                JOptionPane.showMessageDialog(this, "Amount must be greater than 0");
+                return;
+            }
+
+            if (description.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Description is required");
+                return;
+            }
 
             Income income = new Income(year, month, amount, description);
             incomeRepository.save(income);
@@ -161,8 +179,10 @@ public class IncomePanel extends JPanel {
 
             loadIncomes();
 
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Amount must be a valid number");
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Invalid input");
+            JOptionPane.showMessageDialog(this, "Unexpected error");
         }
     }
 

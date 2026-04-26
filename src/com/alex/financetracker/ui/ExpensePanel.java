@@ -153,10 +153,33 @@ public class ExpensePanel extends JPanel {
         try {
             int year = (Integer) yearBox.getSelectedItem();
             int month = monthBox.getSelectedIndex() + 1;
-            double amount = Double.parseDouble(amountField.getText());
+
+            String amountText = amountField.getText().trim();
             ExpenseType type = (ExpenseType) typeBox.getSelectedItem();
-            String category = categoryField.getText();
-            String description = descriptionField.getText();
+            String category = categoryField.getText().trim();
+            String description = descriptionField.getText().trim();
+
+            if (amountText.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Amount is required");
+                return;
+            }
+
+            double amount = Double.parseDouble(amountText);
+
+            if (amount <= 0) {
+                JOptionPane.showMessageDialog(this, "Amount must be greater than 0");
+                return;
+            }
+
+            if (category.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Category is required");
+                return;
+            }
+
+            if (description.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Description is required");
+                return;
+            }
 
             Expense expense = new Expense(year, month, amount, type, category, description);
 
@@ -173,8 +196,10 @@ public class ExpensePanel extends JPanel {
 
             loadExpenses();
 
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Amount must be a valid number");
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Invalid input");
+            JOptionPane.showMessageDialog(this, "Unexpected error");
         }
     }
 
