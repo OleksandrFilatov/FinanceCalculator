@@ -77,4 +77,25 @@ public class IncomeRepository {
             e.printStackTrace();
         }
     }
+    public void update(Income income) {
+
+        String sql = "UPDATE incomes SET year = ?, month = ?, amount = ?, description = ? WHERE id = ?";
+
+        try (Connection connection = DatabaseConfig.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setInt(1, income.getYear());
+            statement.setInt(2, income.getMonth());
+            statement.setDouble(3, income.getAmount());
+            statement.setString(4, income.getDescription());
+            statement.setInt(5, income.getId());
+
+            statement.executeUpdate();
+
+            System.out.println("Income updated!");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
