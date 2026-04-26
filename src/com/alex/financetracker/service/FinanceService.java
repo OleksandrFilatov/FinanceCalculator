@@ -116,4 +116,18 @@ public class FinanceService {
 
         return reports;
     }
+
+    public List<MonthlyReport> createReportsByYear(int selectedYear) {
+
+        List<MonthlyReport> allReports = createAllMonthlyReports();
+        List<MonthlyReport> filteredReports = new ArrayList<>();
+
+        for (MonthlyReport report : allReports) {
+            if (report.getYear() == selectedYear) {
+                filteredReports.add(report);
+            }
+        }
+
+        return filteredReports;
+    }
 }

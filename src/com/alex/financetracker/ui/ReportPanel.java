@@ -11,6 +11,7 @@ import java.awt.*;
 import java.util.List;
 
 public class ReportPanel extends JPanel {
+    private JComboBox<Integer> yearBox;
 
     private JTable reportTable;
     private DefaultTableModel tableModel;
@@ -30,6 +31,27 @@ public class ReportPanel extends JPanel {
         loadReports();
     }
 
+    private void loadReportsByYear() {
+        tableModel.setRowCount(0);
+
+        int selectedYear = (Integer) yearBox.getSelectedItem();
+
+        List<MonthlyReport> reports = financeService.createReportsByYear(selectedYear);
+
+        for (MonthlyReport report : reports) {
+            tableModel.addRow(new Object[]{
+                    report.getYear(),
+                    report.getMonth(),
+                    String.format("%.2f", report.getTotalIncome()),
+                    String.format("%.2f", report.getTotalCardExpense()),
+                    String.format("%.2f", report.getTotalCashExpense()),
+                    String.format("%.2f", report.getTotalExpense()),
+                    String.format("%.2f", report.getBalance()),
+                    String.format("%.2f", report.getCumulativeBalance())
+            });
+        }
+    }
+
     private JPanel createTopPanel() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createCompoundBorder(
@@ -41,7 +63,14 @@ public class ReportPanel extends JPanel {
         JLabel title = new JLabel("Monthly Reports");
         title.setFont(new Font("Arial", Font.BOLD, 22));
 
-        JButton refreshButton = new JButton("Refresh reports");
+        yearBox = new JComboBox<>(new Integer[]{2024, 2025, 2026, 2027});
+
+        JButton filterButton = new JButton("Filter");
+        filterButton.setFocusPainted(false);
+        filterButton.setFont(new Font("Arial", Font.BOLD, 14));
+        filterButton.addActionListener(e -> loadReportsByYear());
+
+        JButton refreshButton = new JButton("Show all");
         refreshButton.setFocusPainted(false);
         refreshButton.setFont(new Font("Arial", Font.BOLD, 14));
         refreshButton.addActionListener(e -> loadReports());
@@ -53,6 +82,9 @@ public class ReportPanel extends JPanel {
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         buttonPanel.setBackground(Color.WHITE);
+        buttonPanel.add(new JLabel("Year:"));
+        buttonPanel.add(yearBox);
+        buttonPanel.add(filterButton);
         buttonPanel.add(refreshButton);
         buttonPanel.add(exportButton);
 
