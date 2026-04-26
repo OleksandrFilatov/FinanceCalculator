@@ -69,4 +69,21 @@ public class ExpenseRepository {
 
         return expenses;
     }
+    public void deleteById(int id) {
+
+        String sql = "DELETE FROM expenses WHERE id = ?";
+
+        try (Connection connection = DatabaseConfig.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setInt(1, id);
+
+            statement.executeUpdate();
+
+            System.out.println("Expense deleted!");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

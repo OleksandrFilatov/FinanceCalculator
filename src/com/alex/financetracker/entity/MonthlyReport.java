@@ -38,4 +38,35 @@ public class MonthlyReport {
                 ", cumulativeBalance=" + cumulativeBalance +
                 '}';
     }
+    public int getYear() {
+        return year;
+    }
+
+    public int getMonth() {
+        return month;
+    }
+
+    public double getTotalIncome() {
+        return totalIncome;
+    }
+
+    public double getTotalCardExpense() {
+        return totalCardExpense;
+    }
+
+    public double getTotalCashExpense() {
+        return totalCashExpense;
+    }
+
+    public double getTotalExpense() {
+        return totalExpense;
+    }
+
+    public double getBalance() {
+        return balance;
+    }
+
+    public double getCumulativeBalance() {
+        return cumulativeBalance;
+    }
 }

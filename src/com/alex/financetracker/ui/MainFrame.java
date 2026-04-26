@@ -16,8 +16,8 @@ public class MainFrame extends JFrame {
         JTabbedPane tabbedPane = new JTabbedPane();
 
         IncomePanel incomePanel = new IncomePanel();
-        JPanel expensePanel = new JPanel();
-        JPanel reportPanel = new JPanel();
+        ExpensePanel expensePanel = new ExpensePanel();
+        ReportPanel reportPanel = new ReportPanel();
 
         tabbedPane.addTab("Incomes", incomePanel);
         tabbedPane.addTab("Expenses", expensePanel);
