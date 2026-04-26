@@ -5,18 +5,14 @@ import com.alex.financetracker.service.FinanceService;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.util.List;
 
 public class ReportPanel extends JPanel {
 
-    private JComboBox<Integer> yearBox;
-    private JComboBox<String> monthBox;
-
-    private JLabel incomeValue;
-    private JLabel cardExpenseValue;
-    private JLabel cashExpenseValue;
-    private JLabel totalExpenseValue;
-    private JLabel balanceValue;
+    private JTable reportTable;
+    private DefaultTableModel tableModel;
 
     private FinanceService financeService;
 
@@ -27,94 +23,89 @@ public class ReportPanel extends JPanel {
         setBorder(new EmptyBorder(20, 20, 20, 20));
         setBackground(new Color(245, 247, 250));
 
-        add(createFilterPanel(), BorderLayout.NORTH);
-        add(createReportPanel(), BorderLayout.CENTER);
+        add(createTopPanel(), BorderLayout.NORTH);
+        add(createTablePanel(), BorderLayout.CENTER);
+
+        loadReports();
     }
 
-    private JPanel createFilterPanel() {
-        JPanel panel = new JPanel(new BorderLayout(10, 15));
+    private JPanel createTopPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(220, 220, 220), 1),
                 new EmptyBorder(20, 20, 20, 20)
         ));
         panel.setBackground(Color.WHITE);
 
-        JLabel title = new JLabel("Monthly Report");
+        JLabel title = new JLabel("Monthly Reports");
         title.setFont(new Font("Arial", Font.BOLD, 22));
 
-        JPanel fieldsPanel = new JPanel(new GridLayout(2, 3, 15, 10));
-        fieldsPanel.setBackground(Color.WHITE);
+        JButton refreshButton = new JButton("Refresh reports");
+        refreshButton.setFocusPainted(false);
+        refreshButton.setFont(new Font("Arial", Font.BOLD, 14));
+        refreshButton.addActionListener(e -> loadReports());
 
-        yearBox = new JComboBox<>(new Integer[]{2024, 2025, 2026, 2027});
-
-        monthBox = new JComboBox<>(new String[]{
-                "January", "February", "March", "April",
-                "May", "June", "July", "August",
-                "September", "October", "November", "December"
-        });
-
-        JButton showButton = new JButton("Show report");
-        showButton.setFocusPainted(false);
-        showButton.setFont(new Font("Arial", Font.BOLD, 14));
-        showButton.addActionListener(e -> showReport());
-
-        fieldsPanel.add(new JLabel("Year"));
-        fieldsPanel.add(new JLabel("Month"));
-        fieldsPanel.add(new JLabel(""));
-
-        fieldsPanel.add(yearBox);
-        fieldsPanel.add(monthBox);
-        fieldsPanel.add(showButton);
-
-        panel.add(title, BorderLayout.NORTH);
-        panel.add(fieldsPanel, BorderLayout.CENTER);
+        panel.add(title, BorderLayout.WEST);
+        panel.add(refreshButton, BorderLayout.EAST);
 
         return panel;
     }
 
-    private JPanel createReportPanel() {
-        JPanel panel = new JPanel(new GridLayout(5, 2, 15, 15));
+    private JPanel createTablePanel() {
+        JPanel panel = new JPanel(new BorderLayout(10, 10));
         panel.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(220, 220, 220), 1),
-                new EmptyBorder(30, 30, 30, 30)
+                new EmptyBorder(20, 20, 20, 20)
         ));
         panel.setBackground(Color.WHITE);
 
-        incomeValue = new JLabel("0.00");
-        cardExpenseValue = new JLabel("0.00");
-        cashExpenseValue = new JLabel("0.00");
-        totalExpenseValue = new JLabel("0.00");
-        balanceValue = new JLabel("0.00");
+        tableModel = new DefaultTableModel();
+        tableModel.addColumn("Year");
+        tableModel.addColumn("Month");
+        tableModel.addColumn("Income");
+        tableModel.addColumn("Card expenses");
+        tableModel.addColumn("Cash expenses");
+        tableModel.addColumn("Total expenses");
+        tableModel.addColumn("Balance");
+        tableModel.addColumn("Cumulative balance");
 
-        addReportRow(panel, "Total income:", incomeValue);
-        addReportRow(panel, "Card expenses:", cardExpenseValue);
-        addReportRow(panel, "Cash expenses:", cashExpenseValue);
-        addReportRow(panel, "Total expenses:", totalExpenseValue);
-        addReportRow(panel, "Balance:", balanceValue);
+        reportTable = new JTable(tableModel);
+        reportTable.setRowHeight(32);
+        reportTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        reportTable.setGridColor(Color.LIGHT_GRAY);
+        reportTable.setShowGrid(true);
+        reportTable.setFillsViewportHeight(true);
+        reportTable.setFont(new Font("Arial", Font.PLAIN, 14));
+        reportTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+
+        reportTable.getTableHeader().setFont(new Font("Arial", Font.BOLD, 14));
+        reportTable.getTableHeader().setReorderingAllowed(false);
+        reportTable.getTableHeader().setResizingAllowed(false);
+
+        JScrollPane scrollPane = new JScrollPane(reportTable);
+        scrollPane.setPreferredSize(new Dimension(800, 350));
+
+        panel.add(scrollPane, BorderLayout.CENTER);
 
         return panel;
     }
 
-    private void addReportRow(JPanel panel, String labelText, JLabel valueLabel) {
-        JLabel label = new JLabel(labelText);
-        label.setFont(new Font("Arial", Font.BOLD, 16));
+    private void loadReports() {
+        tableModel.setRowCount(0);
 
-        valueLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+        List<MonthlyReport> reports = financeService.createAllMonthlyReports();
 
-        panel.add(label);
-        panel.add(valueLabel);
-    }
-
-    private void showReport() {
-        int year = (Integer) yearBox.getSelectedItem();
-        int month = monthBox.getSelectedIndex() + 1;
-
-        MonthlyReport report = financeService.createMonthlyReport(year, month);
-
-        incomeValue.setText(String.format("%.2f", report.getTotalIncome()));
-        cardExpenseValue.setText(String.format("%.2f", report.getTotalCardExpense()));
-        cashExpenseValue.setText(String.format("%.2f", report.getTotalCashExpense()));
-        totalExpenseValue.setText(String.format("%.2f", report.getTotalExpense()));
-        balanceValue.setText(String.format("%.2f", report.getBalance()));
+        for (MonthlyReport report : reports) {
+            tableModel.addRow(new Object[]{
+                    report.getYear(),
+                    report.getMonth(),
+                    String.format("%.2f", report.getTotalIncome()),
+                    String.format("%.2f", report.getTotalCardExpense()),
+                    String.format("%.2f", report.getTotalCashExpense()),
+                    String.format("%.2f", report.getTotalExpense()),
+                    String.format("%.2f", report.getBalance()),
+                    String.format("%.2f", report.getCumulativeBalance())
+            });
+        }
     }
 }
