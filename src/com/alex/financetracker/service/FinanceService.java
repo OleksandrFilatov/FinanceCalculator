@@ -7,6 +7,7 @@ import com.alex.financetracker.entity.MonthlyReport;
 import com.alex.financetracker.repository.ExpenseRepository;
 import com.alex.financetracker.repository.IncomeRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class FinanceService {
@@ -15,8 +16,8 @@ public class FinanceService {
     private ExpenseRepository expenseRepository;
 
     public FinanceService() {
-        incomeRepository = new IncomeRepository();
-        expenseRepository = new ExpenseRepository();
+        this.incomeRepository = new IncomeRepository();
+        this.expenseRepository = new ExpenseRepository();
     }
 
     public MonthlyReport createMonthlyReport(int year, int month) {
@@ -33,6 +34,7 @@ public class FinanceService {
                 totalIncome += income.getAmount();
             }
         }
+
         for (Expense expense : expenses) {
             if (expense.getYear() == year && expense.getMonth() == month) {
                 if (expense.getExpenseType() == ExpenseType.CARD) {
@@ -56,5 +58,62 @@ public class FinanceService {
                 balance,
                 balance
         );
+    }
+
+    public List<MonthlyReport> createAllMonthlyReports() {
+
+        List<Income> incomes = incomeRepository.findAll();
+        List<Expense> expenses = expenseRepository.findAll();
+
+        List<MonthlyReport> reports = new ArrayList<>();
+
+        double cumulativeBalance = 0;
+
+        for (int year = 2024; year <= 2027; year++) {
+            for (int month = 1; month <= 12; month++) {
+
+                double totalIncome = 0;
+                double totalCardExpense = 0;
+                double totalCashExpense = 0;
+
+                for (Income income : incomes) {
+                    if (income.getYear() == year && income.getMonth() == month) {
+                        totalIncome += income.getAmount();
+                    }
+                }
+
+                for (Expense expense : expenses) {
+                    if (expense.getYear() == year && expense.getMonth() == month) {
+                        if (expense.getExpenseType() == ExpenseType.CARD) {
+                            totalCardExpense += expense.getAmount();
+                        } else if (expense.getExpenseType() == ExpenseType.CASH) {
+                            totalCashExpense += expense.getAmount();
+                        }
+                    }
+                }
+
+                double totalExpense = totalCardExpense + totalCashExpense;
+                double balance = totalIncome - totalExpense;
+
+                if (totalIncome > 0 || totalExpense > 0) {
+                    cumulativeBalance += balance;
+
+                    MonthlyReport report = new MonthlyReport(
+                            year,
+                            month,
+                            totalIncome,
+                            totalCardExpense,
+                            totalCashExpense,
+                            totalExpense,
+                            balance,
+                            cumulativeBalance
+                    );
+
+                    reports.add(report);
+                }
+            }
+        }
+
+        return reports;
     }
 }
