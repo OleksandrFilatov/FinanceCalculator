@@ -69,6 +69,7 @@ public class ExpenseRepository {
 
         return expenses;
     }
+
     public void deleteById(int id) {
 
         String sql = "DELETE FROM expenses WHERE id = ?";
@@ -81,6 +82,30 @@ public class ExpenseRepository {
             statement.executeUpdate();
 
             System.out.println("Expense deleted!");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void update(Expense expense) {
+
+        String sql = "UPDATE expenses SET year = ?, month = ?, amount = ?, expense_type = ?, category = ?, description = ? WHERE id = ?";
+
+        try (Connection connection = DatabaseConfig.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setInt(1, expense.getYear());
+            statement.setInt(2, expense.getMonth());
+            statement.setDouble(3, expense.getAmount());
+            statement.setString(4, expense.getExpenseType().name());
+            statement.setString(5, expense.getCategory());
+            statement.setString(6, expense.getDescription());
+            statement.setInt(7, expense.getId());
+
+            statement.executeUpdate();
+
+            System.out.println("Expense updated!");
 
         } catch (Exception e) {
             e.printStackTrace();

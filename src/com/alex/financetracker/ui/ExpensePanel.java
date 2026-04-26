@@ -34,6 +34,8 @@ public class ExpensePanel extends JPanel {
         add(createFormPanel(), BorderLayout.NORTH);
         add(createTablePanel(), BorderLayout.CENTER);
 
+        addTableSelectionListener();
+
         loadExpenses();
     }
 
@@ -45,15 +47,13 @@ public class ExpensePanel extends JPanel {
         ));
         panel.setBackground(Color.WHITE);
 
-        JLabel title = new JLabel("Add New Expense");
+        JLabel title = new JLabel("Add / Update Expense");
         title.setFont(new Font("Arial", Font.BOLD, 22));
 
         JPanel fieldsPanel = new JPanel(new GridLayout(2, 6, 15, 10));
         fieldsPanel.setBackground(Color.WHITE);
 
-        yearBox = new JComboBox<>(new Integer[]{
-                2024, 2025, 2026, 2027
-        });
+        yearBox = new JComboBox<>(new Integer[]{2024, 2025, 2026, 2027});
 
         monthBox = new JComboBox<>(new String[]{
                 "January", "February", "March", "April",
@@ -133,6 +133,11 @@ public class ExpensePanel extends JPanel {
         JScrollPane scrollPane = new JScrollPane(expenseTable);
         scrollPane.setPreferredSize(new Dimension(800, 300));
 
+        JButton updateButton = new JButton("Update selected");
+        updateButton.setFocusPainted(false);
+        updateButton.setFont(new Font("Arial", Font.BOLD, 14));
+        updateButton.addActionListener(e -> updateExpense());
+
         JButton deleteButton = new JButton("Delete selected");
         deleteButton.setFocusPainted(false);
         deleteButton.setFont(new Font("Arial", Font.BOLD, 14));
@@ -140,6 +145,7 @@ public class ExpensePanel extends JPanel {
 
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         bottomPanel.setBackground(Color.WHITE);
+        bottomPanel.add(updateButton);
         bottomPanel.add(deleteButton);
 
         panel.add(title, BorderLayout.NORTH);
@@ -159,41 +165,18 @@ public class ExpensePanel extends JPanel {
             String category = categoryField.getText().trim();
             String description = descriptionField.getText().trim();
 
-            if (amountText.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Amount is required");
+            if (!validateExpenseInput(amountText, category, description)) {
                 return;
             }
 
             double amount = Double.parseDouble(amountText);
 
-            if (amount <= 0) {
-                JOptionPane.showMessageDialog(this, "Amount must be greater than 0");
-                return;
-            }
-
-            if (category.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Category is required");
-                return;
-            }
-
-            if (description.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Description is required");
-                return;
-            }
-
             Expense expense = new Expense(year, month, amount, type, category, description);
-
             expenseRepository.save(expense);
 
             JOptionPane.showMessageDialog(this, "Expense added successfully!");
 
-            yearBox.setSelectedIndex(0);
-            monthBox.setSelectedIndex(0);
-            amountField.setText("");
-            typeBox.setSelectedIndex(0);
-            categoryField.setText("");
-            descriptionField.setText("");
-
+            clearFields();
             loadExpenses();
 
         } catch (NumberFormatException e) {
@@ -201,6 +184,71 @@ public class ExpensePanel extends JPanel {
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Unexpected error");
         }
+    }
+
+    private void updateExpense() {
+        int selectedRow = expenseTable.getSelectedRow();
+
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Select a row first");
+            return;
+        }
+
+        try {
+            int id = (int) tableModel.getValueAt(selectedRow, 0);
+            int year = (Integer) yearBox.getSelectedItem();
+            int month = monthBox.getSelectedIndex() + 1;
+
+            String amountText = amountField.getText().trim();
+            ExpenseType type = (ExpenseType) typeBox.getSelectedItem();
+            String category = categoryField.getText().trim();
+            String description = descriptionField.getText().trim();
+
+            if (!validateExpenseInput(amountText, category, description)) {
+                return;
+            }
+
+            double amount = Double.parseDouble(amountText);
+
+            Expense expense = new Expense(id, year, month, amount, type, category, description);
+            expenseRepository.update(expense);
+
+            JOptionPane.showMessageDialog(this, "Expense updated successfully!");
+
+            clearFields();
+            loadExpenses();
+
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Amount must be a valid number");
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Unexpected error");
+        }
+    }
+
+    private boolean validateExpenseInput(String amountText, String category, String description) {
+        if (amountText.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Amount is required");
+            return false;
+        }
+
+        double amount = Double.parseDouble(amountText);
+
+        if (amount <= 0) {
+            JOptionPane.showMessageDialog(this, "Amount must be greater than 0");
+            return false;
+        }
+
+        if (category.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Category is required");
+            return false;
+        }
+
+        if (description.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Description is required");
+            return false;
+        }
+
+        return true;
     }
 
     private void deleteExpense() {
@@ -217,6 +265,7 @@ public class ExpensePanel extends JPanel {
 
         JOptionPane.showMessageDialog(this, "Expense deleted successfully!");
 
+        clearFields();
         loadExpenses();
     }
 
@@ -236,5 +285,38 @@ public class ExpensePanel extends JPanel {
                     expense.getDescription()
             });
         }
+    }
+
+    private void addTableSelectionListener() {
+        expenseTable.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                int selectedRow = expenseTable.getSelectedRow();
+
+                if (selectedRow != -1) {
+                    int year = (int) tableModel.getValueAt(selectedRow, 1);
+                    int month = (int) tableModel.getValueAt(selectedRow, 2);
+                    double amount = (double) tableModel.getValueAt(selectedRow, 3);
+                    ExpenseType type = (ExpenseType) tableModel.getValueAt(selectedRow, 4);
+                    String category = (String) tableModel.getValueAt(selectedRow, 5);
+                    String description = (String) tableModel.getValueAt(selectedRow, 6);
+
+                    yearBox.setSelectedItem(year);
+                    monthBox.setSelectedIndex(month - 1);
+                    amountField.setText(String.valueOf(amount));
+                    typeBox.setSelectedItem(type);
+                    categoryField.setText(category);
+                    descriptionField.setText(description);
+                }
+            }
+        });
+    }
+
+    private void clearFields() {
+        yearBox.setSelectedIndex(0);
+        monthBox.setSelectedIndex(0);
+        amountField.setText("");
+        typeBox.setSelectedIndex(0);
+        categoryField.setText("");
+        descriptionField.setText("");
     }
 }

@@ -31,6 +31,8 @@ public class IncomePanel extends JPanel {
         add(createFormPanel(), BorderLayout.NORTH);
         add(createTablePanel(), BorderLayout.CENTER);
 
+        addTableSelectionListener();
+
         loadIncomes();
     }
 
@@ -140,6 +142,26 @@ public class IncomePanel extends JPanel {
         panel.add(bottomPanel, BorderLayout.SOUTH);
 
         return panel;
+    }
+
+    private void addTableSelectionListener() {
+        incomeTable.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                int selectedRow = incomeTable.getSelectedRow();
+
+                if (selectedRow != -1) {
+                    int year = (int) tableModel.getValueAt(selectedRow, 1);
+                    int month = (int) tableModel.getValueAt(selectedRow, 2);
+                    double amount = (double) tableModel.getValueAt(selectedRow, 3);
+                    String description = (String) tableModel.getValueAt(selectedRow, 4);
+
+                    yearBox.setSelectedItem(year);
+                    monthBox.setSelectedIndex(month - 1);
+                    amountField.setText(String.valueOf(amount));
+                    descriptionField.setText(description);
+                }
+            }
+        });
     }
 
     private void addIncome() {
