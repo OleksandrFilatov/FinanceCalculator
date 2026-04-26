@@ -18,6 +18,7 @@ public class ExpensePanel extends JPanel {
     private JComboBox<ExpenseType> typeBox;
     private JTextField categoryField;
     private JTextField descriptionField;
+    private JTextField searchField;
 
     private JTable expenseTable;
     private DefaultTableModel tableModel;
@@ -108,6 +109,33 @@ public class ExpensePanel extends JPanel {
         JLabel title = new JLabel("Expense List");
         title.setFont(new Font("Arial", Font.BOLD, 22));
 
+        searchField = new JTextField(20);
+
+        JButton searchButton = new JButton("Search");
+        searchButton.setFocusPainted(false);
+        searchButton.setFont(new Font("Arial", Font.BOLD, 14));
+        searchButton.addActionListener(e -> searchExpenses());
+
+        JButton resetButton = new JButton("Reset");
+        resetButton.setFocusPainted(false);
+        resetButton.setFont(new Font("Arial", Font.BOLD, 14));
+        resetButton.addActionListener(e -> {
+            searchField.setText("");
+            loadExpenses();
+        });
+
+        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        searchPanel.setBackground(Color.WHITE);
+        searchPanel.add(new JLabel("Search category:"));
+        searchPanel.add(searchField);
+        searchPanel.add(searchButton);
+        searchPanel.add(resetButton);
+
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.setBackground(Color.WHITE);
+        topPanel.add(title, BorderLayout.WEST);
+        topPanel.add(searchPanel, BorderLayout.EAST);
+
         tableModel = new DefaultTableModel();
         tableModel.addColumn("ID");
         tableModel.addColumn("Year");
@@ -148,7 +176,7 @@ public class ExpensePanel extends JPanel {
         bottomPanel.add(updateButton);
         bottomPanel.add(deleteButton);
 
-        panel.add(title, BorderLayout.NORTH);
+        panel.add(topPanel, BorderLayout.NORTH);
         panel.add(scrollPane, BorderLayout.CENTER);
         panel.add(bottomPanel, BorderLayout.SOUTH);
 
@@ -273,6 +301,31 @@ public class ExpensePanel extends JPanel {
         tableModel.setRowCount(0);
 
         List<Expense> expenses = expenseRepository.findAll();
+
+        for (Expense expense : expenses) {
+            tableModel.addRow(new Object[]{
+                    expense.getId(),
+                    expense.getYear(),
+                    expense.getMonth(),
+                    expense.getAmount(),
+                    expense.getExpenseType(),
+                    expense.getCategory(),
+                    expense.getDescription()
+            });
+        }
+    }
+
+    private void searchExpenses() {
+        String keyword = searchField.getText().trim();
+
+        if (keyword.isEmpty()) {
+            loadExpenses();
+            return;
+        }
+
+        tableModel.setRowCount(0);
+
+        List<Expense> expenses = expenseRepository.searchByCategory(keyword);
 
         for (Expense expense : expenses) {
             tableModel.addRow(new Object[]{

@@ -4,6 +4,7 @@ import com.alex.financetracker.config.DatabaseConfig;
 import com.alex.financetracker.entity.Expense;
 import com.alex.financetracker.entity.ExpenseType;
 
+import javax.swing.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -110,5 +111,49 @@ public class ExpenseRepository {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    public List<Expense> searchByCategory(String keyword) {
+
+        List<Expense> expenses = new ArrayList<>();
+
+        String sql = "SELECT * FROM expenses WHERE category LIKE ?";
+
+        try (Connection connection = DatabaseConfig.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setString(1, "%" + keyword + "%");
+
+            ResultSet resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                int id = resultSet.getInt("id");
+                int year = resultSet.getInt("year");
+                int month = resultSet.getInt("month");
+                double amount = resultSet.getDouble("amount");
+
+                String typeFromDb = resultSet.getString("expense_type");
+                ExpenseType expenseType = ExpenseType.valueOf(typeFromDb);
+
+                String category = resultSet.getString("category");
+                String description = resultSet.getString("description");
+
+                Expense expense = new Expense(
+                        id,
+                        year,
+                        month,
+                        amount,
+                        expenseType,
+                        category,
+                        description
+                );
+
+                expenses.add(expense);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return expenses;
     }
 }
