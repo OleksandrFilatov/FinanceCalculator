@@ -63,7 +63,7 @@ public class ReportPanel extends JPanel {
         JLabel title = new JLabel("Monthly Reports");
         title.setFont(new Font("Arial", Font.BOLD, 22));
 
-        yearBox = new JComboBox<>(new Integer[]{2024, 2025, 2026, 2027});
+        yearBox = new JComboBox<>(createYearRange());
 
         JButton filterButton = new JButton("Filter");
         filterButton.setFocusPainted(false);
@@ -163,5 +163,16 @@ public class ReportPanel extends JPanel {
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "CSV export failed");
         }
+    }
+    private Integer[] createYearRange() {
+        Integer[] years = new Integer[11];
+
+        int startYear = 2026;
+
+        for (int i = 0; i < years.length; i++) {
+            years[i] = startYear + i;
+        }
+
+        return years;
     }
 }

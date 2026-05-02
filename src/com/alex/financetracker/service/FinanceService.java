@@ -71,7 +71,7 @@ public class FinanceService {
 
         double cumulativeBalance = 0;
 
-        for (int year = 2024; year <= 2027; year++) {
+        for (int year = 2026; year <= 2030; year++) {
             for (int month = 1; month <= 12; month++) {
 
                 double totalIncome = 0;

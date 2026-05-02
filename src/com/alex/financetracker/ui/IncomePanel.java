@@ -51,7 +51,8 @@ public class IncomePanel extends JPanel {
         JPanel fieldsPanel = new JPanel(new GridLayout(2, 4, 15, 10));
         fieldsPanel.setBackground(Color.WHITE);
 
-        yearBox = new JComboBox<>(new Integer[]{2024, 2025, 2026, 2027});
+        yearBox = new JComboBox<>(createYearRange());
+
 
         monthBox = new JComboBox<>(new String[]{
                 "January", "February", "March", "April",
@@ -341,5 +342,16 @@ public class IncomePanel extends JPanel {
         monthBox.setSelectedIndex(0);
         amountField.setText("");
         descriptionField.setText("");
+    }
+    private Integer[] createYearRange() {
+        Integer[] years = new Integer[11];
+
+        int startYear = 2026;
+
+        for (int i = 0; i < years.length; i++) {
+            years[i] = startYear + i;
+        }
+
+        return years;
     }
 }
