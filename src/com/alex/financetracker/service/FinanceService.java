@@ -8,7 +8,9 @@ import com.alex.financetracker.repository.ExpenseRepository;
 import com.alex.financetracker.repository.IncomeRepository;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class FinanceService {
 
@@ -129,5 +131,25 @@ public class FinanceService {
         }
 
         return filteredReports;
+    }
+    public Map<String, Double> calculateExpensesByCategory() {
+
+        List<Expense> expenses = expenseRepository.findAll();
+
+        Map<String, Double> categoryTotals = new HashMap<>();
+
+        for (Expense expense : expenses) {
+            String category = expense.getCategory();
+            double amount = expense.getAmount();
+
+            if (categoryTotals.containsKey(category)) {
+                double currentTotal = categoryTotals.get(category);
+                categoryTotals.put(category, currentTotal + amount);
+            } else {
+                categoryTotals.put(category, amount);
+            }
+        }
+
+        return categoryTotals;
     }
 }

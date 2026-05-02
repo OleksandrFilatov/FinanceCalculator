@@ -18,10 +18,12 @@ public class MainFrame extends JFrame {
         IncomePanel incomePanel = new IncomePanel();
         ExpensePanel expensePanel = new ExpensePanel();
         ReportPanel reportPanel = new ReportPanel();
+        StatisticsPanel statisticsPanel = new StatisticsPanel();
 
         tabbedPane.addTab("Incomes", incomePanel);
         tabbedPane.addTab("Expenses", expensePanel);
         tabbedPane.addTab("Reports", reportPanel);
+        tabbedPane.addTab("Statistics", statisticsPanel);
 
         add(tabbedPane);
     }
