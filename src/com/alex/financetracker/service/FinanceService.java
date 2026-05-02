@@ -152,4 +152,49 @@ public class FinanceService {
 
         return categoryTotals;
     }
+    public double calculateTotalIncome() {
+        List<Income> incomes = incomeRepository.findAll();
+
+        double total = 0;
+
+        for (Income income : incomes) {
+            total += income.getAmount();
+        }
+
+        return total;
+    }
+
+    public double calculateTotalExpenses() {
+        List<Expense> expenses = expenseRepository.findAll();
+
+        double total = 0;
+
+        for (Expense expense : expenses) {
+            total += expense.getAmount();
+        }
+
+        return total;
+    }
+
+    public double calculateCurrentBalance() {
+        return calculateTotalIncome() - calculateTotalExpenses();
+    }
+
+    public String findTopExpenseCategory() {
+        Map<String, Double> categoryTotals = calculateExpensesByCategory();
+
+        String topCategory = "No data";
+        double maxAmount = 0;
+
+        for (String category : categoryTotals.keySet()) {
+            double amount = categoryTotals.get(category);
+
+            if (amount > maxAmount) {
+                maxAmount = amount;
+                topCategory = category;
+            }
+        }
+
+        return topCategory;
+    }
 }

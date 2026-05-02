@@ -2,7 +2,6 @@ package com.alex.financetracker.ui;
 
 import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
-import javax.swing.JPanel;
 
 public class MainFrame extends JFrame {
 
@@ -15,11 +14,13 @@ public class MainFrame extends JFrame {
 
         JTabbedPane tabbedPane = new JTabbedPane();
 
+        DashboardPanel dashboardPanel = new DashboardPanel();
         IncomePanel incomePanel = new IncomePanel();
         ExpensePanel expensePanel = new ExpensePanel();
         ReportPanel reportPanel = new ReportPanel();
         StatisticsPanel statisticsPanel = new StatisticsPanel();
 
+        tabbedPane.addTab("Dashboard", dashboardPanel);
         tabbedPane.addTab("Incomes", incomePanel);
         tabbedPane.addTab("Expenses", expensePanel);
         tabbedPane.addTab("Reports", reportPanel);
