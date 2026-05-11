@@ -28,7 +28,7 @@ public class IncomeRepository {
             System.out.println("Income saved!");
 
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException("Failed to save income", e);
         }
     }
 
@@ -36,7 +36,7 @@ public class IncomeRepository {
 
         List<Income> incomes = new ArrayList<>();
 
-        String sql = "SELECT * FROM incomes";
+        String sql = "SELECT * FROM incomes ORDER BY year, month, id";
 
         try (Connection connection = DatabaseConfig.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql);
@@ -56,7 +56,7 @@ public class IncomeRepository {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException("Failed to load incomes", e);
         }
 
         return incomes;
@@ -76,7 +76,7 @@ public class IncomeRepository {
             System.out.println("Income deleted!");
 
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException("Failed to delete income", e);
         }
     }
 
@@ -98,7 +98,7 @@ public class IncomeRepository {
             System.out.println("Income updated!");
 
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException("Failed to update income", e);
         }
     }
 
@@ -106,29 +106,29 @@ public class IncomeRepository {
 
         List<Income> incomes = new ArrayList<>();
 
-        String sql = "SELECT * FROM incomes WHERE description LIKE ?";
+        String sql = "SELECT * FROM incomes WHERE description LIKE ? ORDER BY year, month, id";
 
         try (Connection connection = DatabaseConfig.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
 
             statement.setString(1, "%" + keyword + "%");
 
-            ResultSet resultSet = statement.executeQuery();
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    int id = resultSet.getInt("id");
+                    int year = resultSet.getInt("year");
+                    int month = resultSet.getInt("month");
+                    double amount = resultSet.getDouble("amount");
+                    String description = resultSet.getString("description");
 
-            while (resultSet.next()) {
-                int id = resultSet.getInt("id");
-                int year = resultSet.getInt("year");
-                int month = resultSet.getInt("month");
-                double amount = resultSet.getDouble("amount");
-                String description = resultSet.getString("description");
+                    Income income = new Income(id, year, month, amount, description);
 
-                Income income = new Income(id, year, month, amount, description);
-
-                incomes.add(income);
+                    incomes.add(income);
+                }
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException("Failed to search incomes", e);
         }
 
         return incomes;

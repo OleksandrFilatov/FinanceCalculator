@@ -1,5 +1,6 @@
 package com.alex.financetracker.ui;
 
+import com.alex.financetracker.config.AppSettings;
 import com.alex.financetracker.entity.MonthlyReport;
 import com.alex.financetracker.service.FinanceService;
 import com.alex.financetracker.util.CSVExporter;
@@ -63,7 +64,7 @@ public class ReportPanel extends JPanel {
         JLabel title = new JLabel("Monthly Reports");
         title.setFont(new Font("Arial", Font.BOLD, 22));
 
-        yearBox = new JComboBox<>(createYearRange());
+        yearBox = new JComboBox<>(AppSettings.createYearRange());
 
         JButton filterButton = new JButton("Filter");
         filterButton.setFocusPainted(false);
@@ -163,16 +164,5 @@ public class ReportPanel extends JPanel {
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "CSV export failed");
         }
-    }
-    private Integer[] createYearRange() {
-        Integer[] years = new Integer[11];
-
-        int startYear = 2026;
-
-        for (int i = 0; i < years.length; i++) {
-            years[i] = startYear + i;
-        }
-
-        return years;
     }
 }

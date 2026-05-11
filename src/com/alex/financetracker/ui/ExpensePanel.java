@@ -1,5 +1,6 @@
 package com.alex.financetracker.ui;
 
+import com.alex.financetracker.config.AppSettings;
 import com.alex.financetracker.entity.Expense;
 import com.alex.financetracker.entity.ExpenseType;
 import com.alex.financetracker.repository.ExpenseRepository;
@@ -54,7 +55,7 @@ public class ExpensePanel extends JPanel {
         JPanel fieldsPanel = new JPanel(new GridLayout(2, 6, 15, 10));
         fieldsPanel.setBackground(Color.WHITE);
 
-        yearBox = new JComboBox<>(createYearRange());
+        yearBox = new JComboBox<>(AppSettings.createYearRange());
 
         monthBox = new JComboBox<>(new String[]{
                 "January", "February", "March", "April",
@@ -371,16 +372,5 @@ public class ExpensePanel extends JPanel {
         typeBox.setSelectedIndex(0);
         categoryField.setText("");
         descriptionField.setText("");
-    }
-    private Integer[] createYearRange() {
-        Integer[] years = new Integer[11];
-
-        int startYear = 2026;
-
-        for (int i = 0; i < years.length; i++) {
-            years[i] = startYear + i;
-        }
-
-        return years;
     }
 }

@@ -1,5 +1,6 @@
 package com.alex.financetracker.service;
 
+import com.alex.financetracker.config.AppSettings;
 import com.alex.financetracker.entity.Expense;
 import com.alex.financetracker.entity.ExpenseType;
 import com.alex.financetracker.entity.Income;
@@ -71,7 +72,7 @@ public class FinanceService {
 
         double cumulativeBalance = 0;
 
-        for (int year = 2026; year <= 2030; year++) {
+        for (int year = AppSettings.START_YEAR; year <= AppSettings.END_YEAR; year++) {
             for (int month = 1; month <= 12; month++) {
 
                 double totalIncome = 0;
